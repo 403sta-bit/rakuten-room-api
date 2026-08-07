@@ -1,3 +1,5 @@
+import https from "https";
+
 export default async function handler(req, res) {
   if (req.method !== "GET") {
     return res.status(405).json({
@@ -16,47 +18,67 @@ export default async function handler(req, res) {
     });
   }
 
-  const url = new URL(
-    "https://openapi.rakuten.co.jp/ichibams/api/IchibaItem/Search/20260701"
-  );
+  const params = new URLSearchParams({
+    applicationId,
+    keyword,
+    format: "json",
+    formatVersion: "2",
+    hits: "3"
+  });
 
-  url.searchParams.set("applicationId", applicationId);
-  url.searchParams.set("keyword", keyword);
-  url.searchParams.set("format", "json");
-  url.searchParams.set("formatVersion", "2");
-  url.searchParams.set("hits", "3");
-
-  try {
-   const response = await fetch(url, {
+  const options = {
+    hostname: "openapi.rakuten.co.jp",
+    path:
+      "/ichibams/api/IchibaItem/Search/20260701?" +
+      params.toString(),
     method: "GET",
     headers: {
-     "accessKey": accessKey
-    },
-    referrer: "https://rakuten-room-api.vercel.app/",
-    referrerPolicy: "origin"
-   });
+      accessKey: accessKey,
+      Referer: "https://rakuten-room-api.vercel.app/"
+    }
+  };
 
-    const text = await response.text();
+  try {
+    const data = await new Promise((resolve, reject) => {
+      const request = https.request(options, (response) => {
+        let body = "";
 
-    let data;
+        response.on("data", (chunk) => {
+          body += chunk;
+        });
+
+        response.on("end", () => {
+          resolve({
+            statusCode: response.statusCode,
+            body
+          });
+        });
+      });
+
+      request.on("error", reject);
+      request.end();
+    });
+
+    let json;
 
     try {
-      data = JSON.parse(text);
+      json = JSON.parse(data.body);
     } catch {
       return res.status(502).json({
         error: "Rakuten returned a non-JSON response.",
-        status: response.status
+        status: data.statusCode,
+        body: data.body.slice(0, 500)
       });
     }
 
-    if (!response.ok) {
-      return res.status(response.status).json({
+    if (data.statusCode < 200 || data.statusCode >= 300) {
+      return res.status(data.statusCode).json({
         error: "Rakuten API error",
-        rakuten: data
+        rakuten: json
       });
     }
 
-    return res.status(200).json(data);
+    return res.status(200).json(json);
 
   } catch (error) {
     return res.status(500).json({
