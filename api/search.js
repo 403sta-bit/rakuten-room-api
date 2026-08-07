@@ -27,13 +27,14 @@ export default async function handler(req, res) {
   url.searchParams.set("hits", "3");
 
   try {
-    const response = await fetch(url, {
-      method: "GET",
-      headers: {
-        accessKey: accessKey,
-        "Referer": "https://rakuten-room-api.vercel.app/"
-      }
-    });
+   const response = await fetch(url, {
+    method: "GET",
+    headers: {
+     "accessKey": accessKey
+    },
+    referrer: "https://rakuten-room-api.vercel.app/",
+    referrerPolicy: "origin"
+   });
 
     const text = await response.text();
 
