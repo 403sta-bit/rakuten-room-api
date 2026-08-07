@@ -33,9 +33,14 @@ export default async function handler(req, res) {
       params.toString(),
     method: "GET",
     headers: {
-      accessKey: accessKey,
-      Referer: "https://rakuten-room-api.vercel.app/"
-    }
+  "accessKey": accessKey,
+  "Referer": "https://rakuten-room-api.vercel.app/",
+  "Origin": "https://rakuten-room-api.vercel.app",
+  "User-Agent":
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +
+    "AppleWebKit/537.36 (KHTML, like Gecko) " +
+    "Chrome/120.0.0.0 Safari/537.36"
+   }
   };
 
   try {
