@@ -30,7 +30,7 @@ export default async function handler(req, res) {
     const response = await fetch(url, {
       method: "GET",
       headers: {
-        accessKey: accessKey
+        accessKey: accessKey,
         "Referer": "https://rakuten-room-api.vercel.app/"
       }
     });
