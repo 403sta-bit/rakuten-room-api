@@ -23,7 +23,7 @@ export default async function handler(req, res) {
     keyword,
     format: "json",
     formatVersion: "2",
-    hits: "3"
+    hits: "30"
   });
 
   const options = {
